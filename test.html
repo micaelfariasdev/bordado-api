@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Web API</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+  #qr { width: 200px; margin-bottom: 20px; }
+  #status { margin-bottom: 20px; }
+  #chat { margin-top: 20px; }
+  #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; background: #fff; }
+  #messages p { margin: 5px 0; }
+</style>
+</head>
+<body>
+
+<h2>WhatsApp Web Client</h2>
+<div id="status">Conectando...</div>
+<img id="qr" src="" alt="QR Code" style="display:none;">
+<div id="chat" style="display:none;">
+  <input type="text" id="to" placeholder="Número ou ID do contato">
+  <input type="text" id="message" placeholder="Mensagem">
+  <button id="sendBtn">Enviar</button>
+  <div id="messages"></div>
+</div>
+
+<script>
+const statusEl = document.getElementById("status");
+const qrEl = document.getElementById("qr");
+const chatEl = document.getElementById("chat");
+const messagesEl = document.getElementById("messages");
+
+let ws;
+
+// Função para atualizar status / QR
+async function checkLogin() {
+    const res = await fetch("http://localhost:3000/api/whatsapp/login");
+    const data = await res.json();
+
+    if (data.logged) {
+        statusEl.textContent = `Conectado como ${data.user}`;
+        qrEl.style.display = "none";
+        chatEl.style.display = "block";
+        connectWS();
+    } else if (data.qrCode) {
+        statusEl.textContent = "Escaneie o QR code:";
+        qrEl.src = data.qrCode;
+        qrEl.style.display = "block";
+        chatEl.style.display = "none";
+        setTimeout(checkLogin, 3000);
+    } else {
+        statusEl.textContent = data.message || "Aguardando QR code...";
+        qrEl.style.display = "none";
+        chatEl.style.display = "none";
+        setTimeout(checkLogin, 3000);
+    }
+}
+
+// Conecta WebSocket
+function connectWS() {
+    ws = new WebSocket("ws://localhost:3000");
+
+    ws.onopen = () => console.log("WS conectado");
+    ws.onmessage = (msg) => {
+        const data = JSON.parse(msg.data);
+        if (data.type === "new-message") {
+            const p = document.createElement("p");
+            p.textContent = `${data.message.from}: ${data.message.body}`;
+            messagesEl.appendChild(p);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        } else if (data.type === "sent") {
+            const p = document.createElement("p");
+            p.textContent = `Mensagem enviada: ${data.status}`;
+            p.style.color = "green";
+            messagesEl.appendChild(p);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        } else if (data.type === "error") {
+            const p = document.createElement("p");
+            p.textContent = `Erro: ${data.error}`;
+            p.style.color = "red";
+            messagesEl.appendChild(p);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+    };
+}
+
+// Envia mensagem via WS
+document.getElementById("sendBtn").addEventListener("click", () => {
+    const to = document.getElementById("to").value.trim();
+    const message = document.getElementById("message").value.trim();
+    if (!to || !message) return alert("Preencha todos os campos");
+    ws.send(JSON.stringify({ type: "send-message", to, message }));
+    document.getElementById("message").value = "";
+});
+
+checkLogin();
+</script>
+
+</body>
+</html>

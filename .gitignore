@@ -64,3 +64,6 @@ jest-html-reporters-*.html
 
 # Local development only
 uploads/
+
+.wwebjs_auth
+.wwebjs_cache
