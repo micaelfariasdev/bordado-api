@@ -1,4 +1,4 @@
-import { getClient } from "../whatsappClient.js"
+import { getClient } from "../tools/whatsappClient.js"
 
 class WhatsappController {
     constructor() {

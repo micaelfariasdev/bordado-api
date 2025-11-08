@@ -1,5 +1,5 @@
 import express from "express"
-import { getClient, getQr } from "../whatsappClient.js"
+import { getClient, getQr } from "../tools/whatsappClient.js"
 
 const router = express.Router()
 
