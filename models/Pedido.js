@@ -9,8 +9,10 @@ Pedido.init({
   dataRecebimento: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   dataEntrega: { type: DataTypes.DATE, allowNull: false },
   descricao: { type: DataTypes.STRING },
-  quantidade: { type: DataTypes.NUMBER, defaultValue: 0 },
-  precoUnt: { type: DataTypes.FLOAT, defaultValue: 0 }
+  quantidade: { type: DataTypes.INTEGER, defaultValue: 0 },
+  precoUnt: { type: DataTypes.FLOAT, defaultValue: 0 },
+  pago: { type: DataTypes.BOOLEAN, defaultValue: false },
+  formaPagamento: { type: DataTypes.ENUM('pix', 'credito', 'debito', 'dinheiro'), defaultValue: 'dinheiro' }
 }, {
   sequelize,
   modelName: "Pedido"

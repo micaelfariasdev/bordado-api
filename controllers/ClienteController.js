@@ -17,7 +17,7 @@ export class ClienteController {
                 {
                     model: Pedido,
                     as: "pedidos",
-                    attributes: ["id", "nomeProduto", "precoUnt", "quantidade"]
+                    attributes: [  "nomeProduto", "precoUnt", "quantidade"]
                 }
             ]
         })

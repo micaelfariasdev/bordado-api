@@ -6,32 +6,48 @@ let client
 let qrDataURL = null
 
 export async function startClient() {
+    if (client) {
+        try { await client.destroy(); } catch { }
+    }
+
     client = new Client({
         authStrategy: new LocalAuth({ clientId: "api-session" }),
-        puppeteer: { headless: true }
-    })
-
-    client.on("qr", async qr => {
-        qrDataURL = await qrcode.toDataURL(qr)
-    })
-
-    client.on("ready", () => {
-        console.log("Cliente WhatsApp pronto")
-        qrDataURL = null
-    })
-
-    client.on("auth_failure", msg => console.log("Falha de autenticação:", msg))
-    client.on("disconnected", reason => {
-        console.log("Desconectado:", reason)
-        client.destroy()
-        startClient()
-    })
-
-    await client.initialize()
+        puppeteer: {
+    headless: true,
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process'
+    ],
+    timeout: 0
 }
 
+    });
+
+    client.on("qr", async qr => qrDataURL = await qrcode.toDataURL(qr));
+    client.on("ready", () => { console.log("✅ Cliente pronto"); qrDataURL = null; });
+    client.on("auth_failure", msg => console.log("Falha de auth:", msg));
+    client.on("disconnected", async reason => {
+        console.log("Desconectado:", reason);
+        try { await client.destroy(); } catch { }
+        setTimeout(startClient, 5000);
+    });
+
+    try {
+        await client.initialize();
+    } catch (err) {
+        console.error("Erro ao iniciar:", err.message);
+        setTimeout(startClient, 5000);
+    }
+}
+
+
 export function getClient() {
-    return client
+    return client;
 }
 
 export function getQr() {
