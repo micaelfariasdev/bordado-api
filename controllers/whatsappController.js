@@ -1,6 +1,6 @@
 import { getClient } from "../tools/whatsappClient.js"
 
-class WhatsappController {
+export class WhatsappController {
     constructor(clients = []) {
         this.clients = clients
         this.listeners = []
@@ -82,4 +82,3 @@ class WhatsappController {
     }
 }
 
-export const whatsappController = new WhatsappController()

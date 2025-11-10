@@ -5,13 +5,16 @@ const { Client, LocalAuth } = pkg
 let client
 let qrDataURL = null
 
-export async function startClient() {
+export async function startClient(userId) {
     if (client) {
         try { await client.destroy(); } catch { }
     }
 
     client = new Client({
-        authStrategy: new LocalAuth({ clientId: "api-session" }),
+        authStrategy: new LocalAuth({
+      clientId: userId,
+      dataPath: './sessions' // cada user terá ./sessions/<userId>/
+    }),
         puppeteer: {
     headless: true,
     args: [

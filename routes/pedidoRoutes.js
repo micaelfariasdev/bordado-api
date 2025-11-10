@@ -1,9 +1,11 @@
 import express from "express"
 import { PedidoController } from "../controllers/PedidoController.js"
+import { verificarToken } from '../tools/auth.js'
+
 
 const router = express.Router()
 
-router.get("/", async (req, res) => {
+router.get("/", verificarToken, async (req, res) => {
     try {
         const pedidos = await PedidoController.listar()
         res.json({ success: true, data: pedidos })
@@ -12,7 +14,7 @@ router.get("/", async (req, res) => {
     }
 })
 
-router.post("/", async (req, res) => {
+router.post("/", verificarToken, async (req, res) => {
     try {
         const novo = await PedidoController.criar(req.body)
         res.status(201).json({ success: true, message: "Pedido criado com sucesso", data: novo })
@@ -21,7 +23,7 @@ router.post("/", async (req, res) => {
     }
 })
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", verificarToken, async (req, res) => {
     try {
         const pedido = await PedidoController.buscarPorId(req.params.id)
         if (!pedido) return res.status(404).json({ success: false, error: "Pedido não encontrado" })
@@ -31,7 +33,7 @@ router.get("/:id", async (req, res) => {
     }
 })
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", verificarToken, async (req, res) => {
     try {
         const pedido = await PedidoController.atualizar(req.params.id, req.body)
         if (!pedido) return res.status(404).json({ success: false, error: "Pedido não encontrado" })
@@ -41,7 +43,7 @@ router.patch("/:id", async (req, res) => {
     }
 })
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verificarToken, async (req, res) => {
     try {
         const deletado = await PedidoController.deletar(req.params.id)
         if (!deletado) return res.status(404).json({ success: false, error: "Pedido não encontrado" })

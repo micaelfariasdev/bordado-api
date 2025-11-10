@@ -1,11 +1,28 @@
 import express from "express"
 import { getClient, getQr, startClient } from "../tools/whatsappClient.js"
-import { whatsappController } from "../controllers/whatsappController.js"
+import { verificarToken } from '../tools/auth.js'
+import { startWS } from "../src/server.js"
+import { WhatsappController } from "../controllers/whatsappController.js"
+
+let controller = null
+
+export function getWhatsappController() {
+  if (!controller) controller = new WhatsappController()
+  return controller
+}
+
+export function destroyWhatsappController() {
+  controller = null
+}
+
 
 const router = express.Router()
 
-router.get("/login", async (req, res) => {
+router.get("/login", verificarToken, async (req, res) => {
     try {
+        await startClient(req.user.id);
+        startWS()
+        getWhatsappController() // inicia o WhatsApp APÓS o login
         const client = getClient()
         if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
 
@@ -24,12 +41,13 @@ router.get("/login", async (req, res) => {
     } catch (err) {
         const client = getClient()
         client.destroy()
-        startClient()
+        await startClient(req.user.id);
+
         res.status(500).json({ success: false, error: err.message })
     }
 })
 
-router.get("/me", async (req, res) => {
+router.get("/me", verificarToken, async (req, res) => {
     try {
         const client = getClient()
         if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
@@ -45,19 +63,20 @@ router.get("/me", async (req, res) => {
             res.json({ success: true, logged: false, message: "Você não está logado, faça o login" })
         }
     } catch (err) {
-        startClient()
+        await startClient(req.user.id);
+
 
         res.status(500).json({ success: false, error: err.message })
     }
 })
 
-router.get('/reload', async (req, res) => {
+router.get('/reload', verificarToken, async (req, res) => {
     const client = getClient()
     client.destroy().then(() => client.initialize());
     res.json({ success: true, message: "Reiniciando cliente WhatsApp" })
 })
 
-router.post("/logout", async (req, res) => {
+router.post("/logout", verificarToken, async (req, res) => {
     const client = getClient()
     if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
 
@@ -70,7 +89,7 @@ router.post("/logout", async (req, res) => {
 })
 
 
-router.post("/historico", async (req, res) => {
+router.post("/historico", verificarToken, async (req, res) => {
     const client = getClient()
     if (!client || !client.info || !client.info.wid)
         return res.status(500).json({ success: false, error: "Cliente não conectado ao WhatsApp" })

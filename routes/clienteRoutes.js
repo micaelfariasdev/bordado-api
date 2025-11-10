@@ -1,9 +1,10 @@
 import express from "express"
 import { ClienteController } from "../controllers/ClienteController.js"
+import { verificarToken } from '../tools/auth.js'
 
 const router = express.Router()
 
-router.get("/", async (req, res) => {
+router.get("/", verificarToken,async (req, res) => {
     try {
         const clientes = await ClienteController.listar()
         res.json({ success: true, data: clientes })
@@ -12,7 +13,7 @@ router.get("/", async (req, res) => {
     }
 })
 
-router.post("/", async (req, res) => {
+router.post("/", verificarToken,async (req, res) => {
     try {
         const novo = await ClienteController.criar(req.body)
         res.status(201).json({ success: true, message: "Cliente criado com sucesso", data: novo })
@@ -21,7 +22,7 @@ router.post("/", async (req, res) => {
     }
 })
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", verificarToken, async (req, res) => {
     try {
         const cliente = await ClienteController.buscarPorId(req.params.id)
         if (!cliente) return res.status(404).json({ success: false, error: "Cliente não encontrado" })
@@ -31,7 +32,7 @@ router.get("/:id", async (req, res) => {
     }
 })
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", verificarToken, async (req, res) => {
     try {
         const cliente = await ClienteController.atualizar(req.params.id, req.body)
         if (!cliente) return res.status(404).json({ success: false, error: "Cliente não encontrado" })
@@ -41,7 +42,7 @@ router.patch("/:id", async (req, res) => {
     }
 })
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verificarToken, async (req, res) => {
     try {
         const deletado = await ClienteController.deletar(req.params.id)
         if (!deletado) return res.status(404).json({ success: false, error: "Cliente não encontrado" })
@@ -50,4 +51,5 @@ router.delete("/:id", async (req, res) => {
         res.status(500).json({ success: false, error: err.message })
     }
 })
+
 export default router
