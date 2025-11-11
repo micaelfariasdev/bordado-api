@@ -3,13 +3,14 @@ import { connectDB } from "../db/index.js"
 import pedidoRoutes from "../routes/pedidoRoutes.js"
 import clienteRoutes from "../routes/clienteRoutes.js"
 import { WebSocketServer } from "ws"
-import whatsappRoutes from "../routes/wwebjsRoutes.js"
+import whatsappRoutes, { whatsapp } from "../routes/wwebjsRoutes.js"
 import cors from "cors"
 import { sequelize } from "../db/index.js"
 import { setupAssociations } from "../models/associations.js"
 import authRoutes from '../routes/authRoutes.js'
 import { verificarToken } from '../tools/auth.js'
-import { WhatsappController } from "../controllers/whatsappController.js"
+import jwt from "jsonwebtoken"
+const SECRET = process.env.JWT_SECRET || 'seu_segredo_super_forte'
 
 const app = express()
 const port = 3000
@@ -28,30 +29,57 @@ app.get('/me', verificarToken, (req, res) => {
 let server = app.listen(port, () =>
     console.log(`🚀 Servidor rodando em http://localhost:${port}`)
 )
+let wsStarted = false
 
 export function startWS() {
+    if (wsStarted) {
+        console.log("⚠️ WebSocket já iniciado, ignorando nova chamada.")
+        return
+    }
+    wsStarted = true
     const wss = new WebSocketServer({ server })
-    global.clients = []
 
-    wss.on("connection", ws => {
-        global.clients.push(ws)
-        console.log("🔌 Novo cliente conectado. Total:", global.clients.length)
+    if (!global.clients) global.clients = []
 
-        ws.send(JSON.stringify({ type: "info", message: "Conectado ao WS" }))
+    wss.on("connection", (ws, req) => {
+        const url = new URL(req.url, `http://${req.headers.host}`)
+        const token = url.searchParams.get('token')
+        try {
+            const decoded = jwt.verify(token, SECRET)
+            ws.userId = decoded.id
+            console.log(global.clients)
+            global.clients.push(ws)
+
+            console.log(`🔌 Usuário ${ws.userId} conectado`)
+
+            ws.send(JSON.stringify({ type: "info", message: "Conectado com sucesso" }))
+        } catch (err) {
+            console.log("❌ Token inválido, conexão rejeitada")
+            ws.close()
+            return
+        }
 
         ws.on("message", async msg => {
             try {
                 const data = JSON.parse(msg)
+
+                // login inicial
+                if (data.type === "login") {
+                    whatsapp.onMensagem(m => {
+                        ws.send(JSON.stringify({ type: "message", data: m }))
+                    })
+                    ws.send(JSON.stringify({ type: "status", message: "Cliente iniciado" }))
+                }
+
+                // enviar mensagem pelo WhatsApp
                 if (data.type === "send-message") {
-                    try {
-                        const sent = await WhatsappController.enviarMensagem(data.to, data.message)
-                        ws.send(JSON.stringify({ type: "sent", status: sent }))
-                    } catch (err) {
-                        ws.send(JSON.stringify({ type: "error", error: err.message }))
-                    }
+                    const { to, message } = data
+                    whatsapp.enviarMensagem(to, message)
+                    ws.send(JSON.stringify({ type: "sent", to, message }))
                 }
             } catch (err) {
-                console.error("Erro ao processar mensagem WS:", err)
+                console.error("Erro WS:", err)
+                ws.send(JSON.stringify({ error: err.message }))
             }
         })
 
@@ -62,7 +90,7 @@ export function startWS() {
     })
 
     // Vincula eventos de mensagens do WhatsApp
-    WhatsappController.onMensagem(msg => {
+    whatsapp.onMensagem(msg => {
         if (!global.clients.length) return
         const payload = JSON.stringify({ type: "new-message", message: msg })
         for (const c of global.clients) {

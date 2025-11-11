@@ -5,51 +5,60 @@ import { startWS } from "../src/server.js"
 import { WhatsappController } from "../controllers/whatsappController.js"
 
 let controller = null
+let whatsapp = null
 
-export function getWhatsappController() {
-  if (!controller) controller = new WhatsappController()
-  return controller
+export function getWhatsappController(id) {
+    if (!controller) controller = new WhatsappController(id)
+    return controller
 }
 
 export function destroyWhatsappController() {
-  controller = null
+    controller = null
 }
 
 
 const router = express.Router()
 
 router.get("/login", verificarToken, async (req, res) => {
+    const userId = req.user.id
+
     try {
-        await startClient(req.user.id);
-        startWS()
-        getWhatsappController() // inicia o WhatsApp APÓS o login
-        const client = getClient()
-        if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
+        startClient(userId)
 
 
+        const client = getClient(userId)
 
-        const info = client.info
-        if (info?.wid) {
+        if (client.info?.wid) {
             const ppUrl = await client.getProfilePicUrl(client.info.wid._serialized)
-
-            res.json({ success: true, logged: true, user: info.pushname || info.me.user, profilePic: ppUrl })
-        } else if (getQr()) {
-            res.json({ success: true, logged: false, qrCode: getQr() })
-        } else {
-            res.json({ success: true, logged: false, message: "Aguardando QR code" })
+            return res.json({
+                success: true,
+                logged: true,
+                user: client.info.pushname || client.info.me.user,
+                profilePic: ppUrl
+            })
         }
-    } catch (err) {
-        const client = getClient()
-        client.destroy()
-        await startClient(req.user.id);
 
-        res.status(500).json({ success: false, error: err.message })
+        const qr = getQr(userId)
+        if (qr) {
+            return res.json({ success: true, logged: false, qrCode: qr })
+        }
+
+        return res.json({ success: true, logged: false, message: "Aguardando QR code" })
+    } catch (err) {
+        console.error("Erro no login:", err.message)
+        return res.status(500).json({ success: false, error: err.message })
     }
 })
 
+
 router.get("/me", verificarToken, async (req, res) => {
+    const userId = req.user.id
+    await startClient(userId)
+    whatsapp = await getWhatsappController(req.user.id)
+    await startWS()
+
     try {
-        const client = getClient()
+        const client = getClient(userId)
         if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
 
 
@@ -71,13 +80,16 @@ router.get("/me", verificarToken, async (req, res) => {
 })
 
 router.get('/reload', verificarToken, async (req, res) => {
-    const client = getClient()
+    const userId = req.user.id
+
+    const client = getClient(userId)
     client.destroy().then(() => client.initialize());
     res.json({ success: true, message: "Reiniciando cliente WhatsApp" })
 })
 
 router.post("/logout", verificarToken, async (req, res) => {
-    const client = getClient()
+    const userId = req.user.id
+    const client = getClient(userId)
     if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
 
     try {
@@ -90,7 +102,8 @@ router.post("/logout", verificarToken, async (req, res) => {
 
 
 router.post("/historico", verificarToken, async (req, res) => {
-    const client = getClient()
+    const userId = req.user.id
+    const client = getClient(userId)
     if (!client || !client.info || !client.info.wid)
         return res.status(500).json({ success: false, error: "Cliente não conectado ao WhatsApp" })
     const MAX_RETRIES = 3;
@@ -164,7 +177,7 @@ router.post("/historico", verificarToken, async (req, res) => {
                 }
             }
 
-            whatsappController.sendToAll({ type: "history", data: history })
+            whatsapp.sendToAll({ type: "history", data: history })
             res.json({ success: true, sent: true, count: history.length, chats: chats })
             break;
 
@@ -193,3 +206,4 @@ router.post("/historico", verificarToken, async (req, res) => {
 
 
 export default router
+export { whatsapp }
