@@ -71,5 +71,5 @@ uploads/
 test*
 
 migrations
-
+config
 sessions

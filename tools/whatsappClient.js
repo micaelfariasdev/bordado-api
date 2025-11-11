@@ -8,7 +8,6 @@ let qrDataURL = {}
 
 export async function startClient(userId) {
     if (activeClients[userId]) {
-        console.log(`⚠️ Cliente ${userId} já ativo`)
         return activeClients[userId]
     }
 
@@ -33,18 +32,15 @@ export async function startClient(userId) {
 
     client.on("qr", async qr => {
         qrDataURL[userId] = await qrcode.toDataURL(qr)
-        console.log(`📲 QR gerado para ${userId}`)
     })
 
     client.on("ready", () => {
-        console.log(`✅ WhatsApp conectado (${userId})`)
         qrDataURL[userId] = null
     })
 
     client.on("auth_failure", msg => console.log("❌ Falha de auth:", msg))
 
     client.on("disconnected", reason => {
-        console.log(`⚠️ ${userId} desconectado:`, reason)
         delete activeClients[userId]
     })
 

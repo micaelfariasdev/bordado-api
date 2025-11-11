@@ -27,7 +27,6 @@ router.get("/login", verificarToken, async (req, res) => {
 
 
         const client = getClient(userId)
-
         if (client.info?.wid) {
             const ppUrl = await client.getProfilePicUrl(client.info.wid._serialized)
             return res.json({

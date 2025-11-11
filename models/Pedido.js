@@ -12,7 +12,8 @@ Pedido.init({
   quantidade: { type: DataTypes.INTEGER, defaultValue: 0 },
   precoUnt: { type: DataTypes.FLOAT, defaultValue: 0 },
   pago: { type: DataTypes.BOOLEAN, defaultValue: false },
-  formaPagamento: { type: DataTypes.ENUM('pix', 'credito', 'debito', 'dinheiro'), defaultValue: 'dinheiro' }
+  formaPagamento: { type: DataTypes.ENUM('pix', 'credito', 'debito', 'dinheiro'), defaultValue: 'dinheiro' },
+  status: { type: DataTypes.ENUM('orcamento', 'producao', 'finalizado', 'entregue'), defaultValue: 'orcamento' }
 }, {
   sequelize,
   modelName: "Pedido"

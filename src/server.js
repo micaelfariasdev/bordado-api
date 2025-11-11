@@ -26,14 +26,11 @@ app.use(express.static("public"))
 app.get('/me', verificarToken, (req, res) => {
     res.json({ user: req.user })
 })
-let server = app.listen(port, () =>
-    console.log(`🚀 Servidor rodando em http://localhost:${port}`)
-)
+let server = app.listen(port, () =>{})
 let wsStarted = false
 
 export function startWS() {
     if (wsStarted) {
-        console.log("⚠️ WebSocket já iniciado, ignorando nova chamada.")
         return
     }
     wsStarted = true
@@ -47,14 +44,11 @@ export function startWS() {
         try {
             const decoded = jwt.verify(token, SECRET)
             ws.userId = decoded.id
-            console.log(global.clients)
             global.clients.push(ws)
 
-            console.log(`🔌 Usuário ${ws.userId} conectado`)
 
             ws.send(JSON.stringify({ type: "info", message: "Conectado com sucesso" }))
         } catch (err) {
-            console.log("❌ Token inválido, conexão rejeitada")
             ws.close()
             return
         }
@@ -85,7 +79,6 @@ export function startWS() {
 
         ws.on("close", () => {
             global.clients = global.clients.filter(c => c !== ws)
-            console.log("❌ Cliente desconectado. Restantes:", global.clients.length)
         })
     })
 
@@ -103,4 +96,3 @@ export function startWS() {
 await connectDB()
 setupAssociations()
 await sequelize.sync({ alter: false, force: false })
-console.log("📦 Banco sincronizado com sucesso!")

@@ -9,7 +9,6 @@ export const sequelize = new Sequelize({
 export async function connectDB() {
   try {
     await sequelize.authenticate()
-    console.log("✅ Banco conectado")
   } catch (err) {
     console.error("❌ Erro no banco:", err)
   }
