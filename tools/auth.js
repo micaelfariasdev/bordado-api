@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-const SECRET = process.env.JWT_SECRET || 'seu_segredo_super_forte'
+const SECRET = process.env.JWT_SECRET
 
 export function gerarToken(user) {
   return jwt.sign(

@@ -10,10 +10,15 @@ import { setupAssociations } from "../models/associations.js"
 import authRoutes from '../routes/authRoutes.js'
 import { verificarToken } from '../tools/auth.js'
 import jwt from "jsonwebtoken"
-const SECRET = process.env.JWT_SECRET || 'seu_segredo_super_forte'
+import dotenv from 'dotenv'
 
+dotenv.config()
+
+const SECRET = process.env.JWT_SECRET
 const app = express()
 const port = 3000
+
+console.log(SECRET)
 
 app.use(cors())
 app.use(express.json())

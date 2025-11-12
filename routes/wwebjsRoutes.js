@@ -79,11 +79,16 @@ router.get("/me", verificarToken, async (req, res) => {
 })
 
 router.get('/reload', verificarToken, async (req, res) => {
+    try {
+
     const userId = req.user.id
 
     const client = getClient(userId)
     client.destroy().then(() => client.initialize());
     res.json({ success: true, message: "Reiniciando cliente WhatsApp" })
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message })
+    }
 })
 
 router.post("/logout", verificarToken, async (req, res) => {
