@@ -8,7 +8,15 @@ export class ClienteController {
     }
 
     static async listar() {
-        return await Cliente.findAll()
+        return await Cliente.findAll({
+            include: [
+                {
+                    model: Pedido,
+                    as: "pedidos",
+                    attributes: [  'id', "nomeProduto", "status"]
+                }
+            ]
+        })
     }
 
     static async buscarPorId(id) {
