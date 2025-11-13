@@ -11,6 +11,7 @@ import authRoutes from '../routes/authRoutes.js'
 import { verificarToken } from '../tools/auth.js'
 import jwt from "jsonwebtoken"
 import dotenv from 'dotenv'
+import { getClient } from "../tools/whatsappClient.js"
 
 
 dotenv.config()
