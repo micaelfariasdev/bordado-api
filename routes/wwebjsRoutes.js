@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import express from "express"
 import { getClient, getQr, startClient } from "../tools/whatsappClient.js"
 import { verificarToken } from '../tools/auth.js'
@@ -91,17 +93,23 @@ router.get('/reload', verificarToken, async (req, res) => {
     }
 })
 
-router.post("/logout", verificarToken, async (req, res) => {
-    const userId = req.user.id
-    const client = getClient(userId)
-    if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
+router.post('/logout', verificarToken, async (req, res) => {
+  const userId = req.user.id
+  const client = getClient(userId)
+  if (!client) return res.status(500).json({ success: false, error: 'Cliente não iniciado' })
 
-    try {
-        await client.logout()
-        res.json({ success: true, message: "Logout realizado" })
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message })
-    }
+  try {
+    await client.logout()
+    client.destroy()
+
+    const sessionPath = path.resolve(`./.wwebjs_auth/session-${userId}`)
+    if (fs.existsSync(sessionPath)) fs.rmSync(sessionPath, { recursive: true, force: true })
+
+    removeClient(userId)
+    res.json({ success: true, message: 'Logout realizado e sessão removida' })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
 })
 
 

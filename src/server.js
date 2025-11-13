@@ -20,7 +20,12 @@ const port = 3000
 
 console.log(SECRET)
 
-app.use(cors())
+app.use(cors({
+  origin: [process.env.CORS_ORIGIN],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true
+}))
+
 app.use(express.json())
 app.use("/api/pedidos", pedidoRoutes)
 app.use('/auth', authRoutes)
