@@ -2,6 +2,8 @@ import pkg from "whatsapp-web.js"
 import qrcode from "qrcode"
 import path from "path"
 const { Client, LocalAuth } = pkg
+import puppeteer from 'puppeteer';
+const navigate = puppeteer.executablePath()
 
 let activeClients = {}
 let qrDataURL = {}
@@ -18,7 +20,7 @@ export async function startClient(userId) {
         }),
         puppeteer: {
             headless: true,
-            executablePath: "/usr/bin/google-chrome", // ou /usr/bin/chromium-browser
+            executablePath: navigate, // ou /usr/bin/chromium-browser
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
@@ -26,8 +28,10 @@ export async function startClient(userId) {
                 "--disable-dev-shm-usage",
                 "--disable-extensions",
                 "--no-zygote",
-                "--single-process"
+                "--single-process",
+                "--disable-software-rasterizer"
             ]
+
         }
     })
 
