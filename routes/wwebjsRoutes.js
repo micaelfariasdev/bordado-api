@@ -3,8 +3,8 @@ import path from 'path'
 import express from "express"
 import { getClient, getQr, startClient } from "../tools/whatsappClient.js"
 import { verificarToken } from '../tools/auth.js'
-import { startWS } from "../src/server.js"
 import { WhatsappController } from "../controllers/whatsappController.js"
+import { startWS } from '../src/server.js'
 
 let controller = null
 let whatsapp = null
@@ -56,7 +56,8 @@ router.get("/me", verificarToken, async (req, res) => {
         console.log('Cliente Inciado')
         whatsapp = await getWhatsappController(userId)
         console.log('Whatsapp Inciado')
-
+        startWS()
+        console.log('WS iniciado')
     }
 
     try {
