@@ -96,7 +96,8 @@ export function startWS() {
         }
     })
 }
-
+startWS()
+console.log('WS iniciado')
 // conecta DB e sincroniza modelos
 await connectDB()
 setupAssociations()

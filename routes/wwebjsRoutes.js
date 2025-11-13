@@ -25,9 +25,6 @@ router.get("/login", verificarToken, async (req, res) => {
     const userId = req.user.id
 
     try {
-        startClient(userId)
-
-
         const client = getClient(userId)
         if (client.info?.wid) {
             const ppUrl = await client.getProfilePicUrl(client.info.wid._serialized)
@@ -54,9 +51,13 @@ router.get("/login", verificarToken, async (req, res) => {
 
 router.get("/me", verificarToken, async (req, res) => {
     const userId = req.user.id
-    await startClient(userId)
-    whatsapp = await getWhatsappController(req.user.id)
-    await startWS()
+    if (userId) {
+        await startClient(userId)
+        console.log('Cliente Inciado')
+        whatsapp = await getWhatsappController(userId)
+        console.log('Whatsapp Inciado')
+
+    }
 
     try {
         const client = getClient(userId)
@@ -83,33 +84,33 @@ router.get("/me", verificarToken, async (req, res) => {
 router.get('/reload', verificarToken, async (req, res) => {
     try {
 
-    const userId = req.user.id
+        const userId = req.user.id
 
-    const client = getClient(userId)
-    client.destroy().then(() => client.initialize());
-    res.json({ success: true, message: "Reiniciando cliente WhatsApp" })
+        const client = getClient(userId)
+        client.destroy().then(() => client.initialize());
+        res.json({ success: true, message: "Reiniciando cliente WhatsApp" })
     } catch (err) {
         res.status(500).json({ success: false, error: err.message })
     }
 })
 
 router.post('/logout', verificarToken, async (req, res) => {
-  const userId = req.user.id
-  const client = getClient(userId)
-  if (!client) return res.status(500).json({ success: false, error: 'Cliente não iniciado' })
+    const userId = req.user.id
+    const client = getClient(userId)
+    if (!client) return res.status(500).json({ success: false, error: 'Cliente não iniciado' })
 
-  try {
-    await client.logout()
-    client.destroy()
+    try {
+        await client.logout()
+        client.destroy()
 
-    const sessionPath = path.resolve(`./.wwebjs_auth/session-${userId}`)
-    if (fs.existsSync(sessionPath)) fs.rmSync(sessionPath, { recursive: true, force: true })
+        const sessionPath = path.resolve(`./.wwebjs_auth/session-${userId}`)
+        if (fs.existsSync(sessionPath)) fs.rmSync(sessionPath, { recursive: true, force: true })
 
-    removeClient(userId)
-    res.json({ success: true, message: 'Logout realizado e sessão removida' })
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message })
-  }
+        removeClient(userId)
+        res.json({ success: true, message: 'Logout realizado e sessão removida' })
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message })
+    }
 })
 
 
