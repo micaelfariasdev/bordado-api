@@ -69,6 +69,11 @@ export function startWS() {
                     })
                     ws.send(JSON.stringify({ type: "status", message: "Cliente iniciado" }))
                 }
+                
+                if (data.type === "get-history") {
+                    const { numeros } = data
+                    getHistory(ws.userId, numeros)
+                }
 
                 // enviar mensagem pelo WhatsApp
                 if (data.type === "send-message") {
