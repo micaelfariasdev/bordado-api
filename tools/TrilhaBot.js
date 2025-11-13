@@ -90,14 +90,14 @@ export async function AutoBot(msg) {
             );
 
             state.currentStage = 2;
-          } else {
+          }
+        } else {
             await whatsapp.enviarMensagem(
               userId,
               `Posso registrar um novo orçamento para você?`
             );
             state.currentStage = 3;
           }
-        }
       } else {
         return;
       }
