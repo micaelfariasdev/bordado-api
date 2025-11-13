@@ -62,6 +62,14 @@ router.get("/me", verificarToken, async (req, res) => {
 
     try {
         const client = getClient(userId)
+        if (userId && !client) {
+            await startClient(userId)
+            console.log('Cliente Inciado')
+            whatsapp = await getWhatsappController(userId)
+            console.log('Whatsapp Inciado')
+            startWS()
+            console.log('WS iniciado')
+        }
         if (!client) return res.status(500).json({ success: false, error: "Cliente não iniciado" })
 
 
