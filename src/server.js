@@ -11,6 +11,7 @@ import authRoutes from '../routes/authRoutes.js'
 import { verificarToken } from '../tools/auth.js'
 import jwt from "jsonwebtoken"
 import dotenv from 'dotenv'
+import { getHistory } from "../tools/getHistory.js"
 
 dotenv.config()
 
@@ -73,6 +74,7 @@ export function startWS() {
                 if (data.type === "get-history") {
                     const { numeros } = data
                     getHistory(ws.userId, numeros)
+                    console.log(ws.userId, numeros)
                 }
 
                 // enviar mensagem pelo WhatsApp
