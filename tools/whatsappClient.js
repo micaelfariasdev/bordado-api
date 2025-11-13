@@ -18,7 +18,7 @@ export async function startClient(userId) {
         }),
         puppeteer: {
             headless: true,
-            executablePath: "/usr/bin/chromium-browser", // ou /usr/bin/chromium-browser
+            executablePath: "/usr/bin/google-chrome", // ou /usr/bin/chromium-browser
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
