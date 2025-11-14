@@ -16,15 +16,28 @@ export async function startClient(userId) {
     }),
     puppeteer: {
       headless: true,
-      executablePath: '/usr/bin/google-chrome',
+      executablePath: '/usr/bin/chromium-browser',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--single-process',
+        '--disable-extensions',
         '--no-zygote',
-        '--remote-debugging-port=0'
+        '--disable-software-rasterizer',
+        '--disable-background-networking',
+        '--disable-default-apps',
+        '--disable-sync',
+        '--disable-features=TranslateUI',
+        '--metrics-recording-only',
+        '--mute-audio',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--ignore-certificate-errors',
+        '--ignore-ssl-errors',
+        '--window-size=1920,1080',
+        '--disable-infobars',
+        '--remote-debugging-port=9222'
       ]
     }
   })
