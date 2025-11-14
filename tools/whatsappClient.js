@@ -15,15 +15,12 @@ export async function startClient(userId) {
       dataPath: path.resolve('./sessions'),
     }),
     puppeteer: {
-      executablePath: '/opt/google/chrome/google-chrome',
+      executablePath: '/opt/chrome-r1045629/chrome',
       headless: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
-        '--disable-extensions',
-        '--disable-gpu',
-        '--disable-software-rasterizer',
       ],
     },
   });
