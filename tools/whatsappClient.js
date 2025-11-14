@@ -41,6 +41,17 @@ export async function startClient(userId) {
 
     client.on("ready", () => {
         qrDataURL[userId] = null
+         setInterval(async () => {
+        const page = client.pupPage
+        if (!page) return
+
+        try {
+            await page.evaluate(() => {
+                const event = new MouseEvent("mousemove", { bubbles: true })
+                document.dispatchEvent(event)
+            })
+        } catch (e) {}
+    }, 20000)   
     })
 
     client.on("auth_failure", msg => console.log("❌ Falha de auth:", msg))
