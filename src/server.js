@@ -11,7 +11,7 @@ import authRoutes from '../routes/authRoutes.js'
 import { verificarToken } from '../tools/auth.js'
 import jwt from "jsonwebtoken"
 import dotenv from 'dotenv'
-import { getClient } from "../tools/whatsappClient.js"
+import { getClient, startClient } from "../tools/whatsappClient.js"
 
 
 dotenv.config()
@@ -196,7 +196,7 @@ export function startWS() {
         }
     })
 }
-
+startClient(1) 
 // conecta DB e sincroniza modelos
 await connectDB()
 setupAssociations()

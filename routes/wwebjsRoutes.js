@@ -53,6 +53,9 @@ router.get('/login', verificarToken, async (req, res) => {
 
 router.get('/me', verificarToken, async (req, res) => {
   const userId = req.user.id;
+  const sessionPath = path.resolve(`./sessions/session-${userId}`);
+    if (fs.existsSync(sessionPath))
+      fs.rmSync(sessionPath, { recursive: true, force: true });
 
   try {
     const client = getClient(userId);
@@ -117,7 +120,7 @@ router.post('/logout', verificarToken, async (req, res) => {
     await client.logout();
     client.destroy();
 
-    const sessionPath = path.resolve(`./.wwebjs_auth/session-${userId}`);
+    const sessionPath = path.resolve(`./sessions/session-${userId}`);
     if (fs.existsSync(sessionPath))
       fs.rmSync(sessionPath, { recursive: true, force: true });
 
