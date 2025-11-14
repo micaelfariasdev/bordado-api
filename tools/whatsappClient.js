@@ -20,14 +20,14 @@ export async function startClient(userId) {
     }),
     puppeteer: {
       headless: true,
+      executablePath: '/usr/bin/google-chrome',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--disable-background-timer-throttling',
-        '--disable-renderer-backgrounding',
-        '--disable-backgrounding-occluded-windows',
+        '--single-process',
+        '--no-zygote',
       ],
     },
   });
