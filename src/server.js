@@ -196,8 +196,6 @@ export function startWS() {
         }
     })
 }
-startClient(1) 
-// conecta DB e sincroniza modelos
 await connectDB()
 setupAssociations()
 await sequelize.sync({ alter: false, force: false })
