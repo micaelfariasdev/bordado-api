@@ -57,7 +57,7 @@ router.get("/me", verificarToken, async (req, res) => {
         if (userId && !client) {
             await startClient(userId)
             console.log('Cliente Inciado')
-            whatsapp = await getWhatsappController(userId)
+            whatsapp =  getWhatsappController(userId)
             console.log('Whatsapp Inciado')
             startWS()
             console.log('WS iniciado')
