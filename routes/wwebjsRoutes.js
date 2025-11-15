@@ -111,30 +111,20 @@ router.get('/reload', verificarToken, async (req, res) => {
     const userId = req.user.id;
 
     const client = getClient(userId);
-    client.destroy().then(() => client.initialize());
+    client.destroy()
     res.json({ success: true, message: 'Reiniciando cliente WhatsApp' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-router.post('/logout', verificarToken, async (req, res) => {
+router.post('/destroy', verificarToken, async (req, res) => {
   const userId = req.user.id;
-  const client = getClient(userId);
-  if (!client)
-    return res
-      .status(500)
-      .json({ success: false, error: 'Cliente não iniciado' });
-
   try {
-    await client.logout();
-    client.destroy();
-
-    const sessionPath = path.resolve(`./sessions/session-${userId}`);
+    const sessionPath = path.resolve(`./sessions/session-session-${userId}`);
     if (fs.existsSync(sessionPath))
       fs.rmSync(sessionPath, { recursive: true, force: true });
 
-    removeClient(userId);
     res.json({ success: true, message: 'Logout realizado e sessão removida' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
