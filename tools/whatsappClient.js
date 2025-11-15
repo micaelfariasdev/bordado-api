@@ -15,6 +15,7 @@ export async function startClient(userId) {
       dataPath: path.resolve('./sessions'),
     }),
     puppeteer: {
+      executablePath: '/usr/bin/chromium-browser',
       headless: true,
       args: [
         '--no-sandbox',
