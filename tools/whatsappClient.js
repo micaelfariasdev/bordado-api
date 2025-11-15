@@ -48,7 +48,7 @@ export async function startClient(userId) {
   try {
     await client.initialize();
     activeClients[userId] = client;
-    console.log('foi')
+    console.log('Cliente iniciado')
     return client;
   } catch (err) {
     console.error('Erro ao iniciar:', err.message);

@@ -51,21 +51,31 @@ router.get('/login', verificarToken, async (req, res) => {
   }
 });
 
-router.get('/me', verificarToken, async (req, res) => {
-  const userId = req.user.id;
-  const sessionPath = path.resolve(`./sessions/session-${userId}`);
-    if (fs.existsSync(sessionPath))
-      fs.rmSync(sessionPath, { recursive: true, force: true });
-
+router.get('/initclient', verificarToken, async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const client = getClient(userId);
     if (userId && !client) {
-      startClient(userId);
+      await startClient(userId);
       whatsapp = getWhatsappController(userId);
       console.log('Whatsapp Inciado');
       startWS();
       console.log('WS iniciado');
     }
+    return res.status(200).json({ success: true, error: 'Cliente iniciado' });
+  } catch {
+    return res
+      .status(500)
+      .json({ success: false, error: 'Cliente não iniciado' });
+  }
+});
+
+router.get('/me', verificarToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const client = getClient(userId);
     if (!client)
       return res
         .status(500)
