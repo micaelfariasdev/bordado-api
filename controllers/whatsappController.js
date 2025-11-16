@@ -32,19 +32,10 @@ export class WhatsappController {
 
     // simula "digitando..."
     await chat.sendStateTyping();
-    await new Promise((r) => setTimeout(r, Math.random() * 1500 + 1000));
+    await new Promise((r) => setTimeout(r, Math.random() * 500 + 500));
     await chat.clearState();
-    const timestamp = Math.floor(Date.now() / 1000);
 
-    const data = {
-      "type": "message",
-      "from": chat.id._serialized,
-      "body": message,
-      "me": true,
-      "timestamp": timestamp
-    }
     const sent = await client.sendMessage(chat.id._serialized, message);
-    this.sendToAll(data)
     return !!sent;
   }
 

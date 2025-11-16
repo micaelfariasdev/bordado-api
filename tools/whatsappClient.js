@@ -31,16 +31,14 @@ export async function startClient(userId) {
 
   client.on('ready', () => {
     qrDataURL[userId] = null;
+
     setInterval(async () => {
       const page = client.pupPage;
       if (!page) return;
       try {
-        await page.evaluate(() => {
-          const ev = new MouseEvent('mousemove', { bubbles: true });
-          document.dispatchEvent(ev);
-        });
-      } catch (_) {}
-    }, 1000 * 60 * 5);
+        await page.mouse.move(1, 1);
+      } catch {}
+    }, 1000 * 60 * 20);
   });
 
   client.on('auth_failure', (msg) => console.log('Auth Failure:', msg));
@@ -49,7 +47,7 @@ export async function startClient(userId) {
   try {
     await client.initialize();
     activeClients[userId] = client;
-    console.log('Cliente iniciado')
+    console.log('Cliente iniciado');
     return client;
   } catch (err) {
     console.error('Erro ao iniciar:', err.message);
