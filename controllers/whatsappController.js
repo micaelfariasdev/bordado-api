@@ -43,8 +43,8 @@ export class WhatsappController {
       "me": true,
       "timestamp": timestamp
     }
-    this.sendToAll(data)
     const sent = await client.sendMessage(chat.id._serialized, message);
+    this.sendToAll(data)
     return !!sent;
   }
 
