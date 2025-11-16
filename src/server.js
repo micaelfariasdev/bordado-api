@@ -76,7 +76,7 @@ export function startWS() {
         if (data.type === 'get-clients') {
           const userId = ws.userId;
           const client = getClient(userId);
-          const chats = client.getChats()
+          const chats = await client.getChats()
           
           ws.send(JSON.stringify({ type: 'clients', chats: chats }));
         }
