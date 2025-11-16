@@ -78,13 +78,15 @@ export function startWS() {
           const client = getClient(userId);
           const chats = await client.getChats();
 
-          const clientPromises = chats.map(async (chat) => {
+          const clientPromises = chats.slice(0, 9).map(async (chat) => {
             const contact = await chat.getContact();
+
             const contactPicture = await contact.getProfilePicUrl();
 
             return {
               id: chat.id._serialized,
-              name: chat.name || chat.id.user,
+              name: contact.name || chat.name || chat.id.user,
+              number: contact.number || chat.id.user || '',
               photo: contactPicture || null,
             };
           });
