@@ -12,6 +12,7 @@ import { verificarToken } from '../tools/auth.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { getClient, startClient } from '../tools/whatsappClient.js';
+import { ClienteController } from '../controllers/ClienteController.js';
 
 dotenv.config();
 
@@ -47,9 +48,9 @@ export function startWS() {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const token = url.searchParams.get('token');
     try {
-        const decoded = jwt.verify(token, SECRET);
-        ws.userId = decoded.id;
-        global.clients.push(ws);
+      const decoded = jwt.verify(token, SECRET);
+      ws.userId = decoded.id;
+      global.clients.push(ws);
 
       ws.send(
         JSON.stringify({ type: 'info', message: 'Conectado com sucesso' })
@@ -78,23 +79,32 @@ export function startWS() {
           const client = getClient(userId);
           const chats = await client.getChats();
 
-          const chatsToProcess = chats.slice(0, 11);
+          const chatsToProcess = chats.slice(0, 21);
           const clientsData = [];
 
           for (const chat of chatsToProcess) {
-            const suffix = chat.name?.split('@')[1];
+            const suffix = chat.id._serialized?.split('@')[1];
 
             if (suffix && suffix.startsWith('g')) {
-              continue; // Ignora o resto do código para este chat e vai para o próximo item do loop
+              continue; 
             }
 
             const contact = await chat.getContact();
             const contactPicture = await contact?.getProfilePicUrl();
 
+            const clientExist = await ClienteController.buscarPorNumeroCliente(
+              contact?.number
+            );
+
+            if (clientExist) {
+              console.log(`Cliente ${contact?.number} já existe. Pulando...`);
+              continue;
+            }
+
             const clientInfo = {
               id: chat.id._serialized,
-              name: contact?.name || chat.name || chat.id.user, // Adicionado ?. também
-              number: contact?.number || chat.id.user || '', // Adicionado ?. também
+              name: contact?.name || chat.name || chat.id.user, 
+              number: contact?.number || chat.id.user || '', 
               photo: contactPicture || null,
             };
 

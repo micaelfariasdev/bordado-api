@@ -5,7 +5,7 @@ export class Cliente extends Model {}
 
 Cliente.init({
   nomeCliente: { type: DataTypes.STRING, allowNull: false },
-  numeroCliente: { type: DataTypes.INTEGER, allowNull: false },
+  numeroCliente: { type: DataTypes.INTEGER, allowNull: false, unique:true},
   dataCreate: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
 }, {
   sequelize,
