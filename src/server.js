@@ -91,20 +91,21 @@ export function startWS() {
 
             const contact = await chat.getContact();
             const contactPicture = await contact?.getProfilePicUrl();
+            const number = contact?.number.slice(2)
 
             const clientExist = await ClienteController.buscarPorNumeroCliente(
-              contact?.number
+              number
             );
 
             if (clientExist) {
-              console.log(`Cliente ${contact?.number} já existe. Pulando...`);
+              console.log(`Cliente ${number} já existe. Pulando...`);
               continue;
             }
 
             const clientInfo = {
               id: chat.id._serialized,
               name: contact?.name || chat.name || chat.id.user, 
-              number: contact?.number || chat.id.user || '', 
+              number: number|| chat.id.user || '', 
               photo: contactPicture || null,
             };
 
