@@ -40,7 +40,7 @@ export async function startClient(userId) {
           document.dispatchEvent(ev);
         });
       } catch (_) {}
-    }, 20000);
+    }, 1000 * 60 * 5);
   });
 
   client.on('auth_failure', (msg) => console.log('Auth Failure:', msg));
