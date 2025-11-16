@@ -76,9 +76,22 @@ export function startWS() {
         if (data.type === 'get-clients') {
           const userId = ws.userId;
           const client = getClient(userId);
-          const chats = await client.getChats()
-          
-          ws.send(JSON.stringify({ type: 'clients', chats: chats }));
+          const chats = await client.getChats();
+
+          const clientPromises = chats.map(async (chat) => {
+            const contact = await chat.getContact();
+            const contactPicture = await contact.getProfilePicUrl();
+
+            return {
+              id: chat.id._serialized,
+              name: chat.name || chat.id.user,
+              photo: contactPicture || null,
+            };
+          });
+
+          const clientsData = await Promise.all(clientPromises);
+
+          ws.send(JSON.stringify({ type: 'clients', chats: clientsData }));
         }
 
         if (data.type === 'get-history') {
