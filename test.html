@@ -35,7 +35,21 @@ let ws;
 
 // Função para atualizar status / QR
 async function checkLogin() {
-    const res = await fetch("http://localhost:3000/api/whatsapp/login");
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsImlhdCI6MTc2MzI2MDMyMCwiZXhwIjoxNzYzODY1MTIwfQ.5iM4qz_WlmnGVv5gxkH14pAWaGIsLQJqtrb2WLVr7p0";
+
+// URL da sua API
+const url = "http://localhost:3000/api/whatsapp/login";
+
+// Configuração da requisição (Headers)
+const options = {
+    method: 'GET', // Se for um GET, pode omitir, mas é bom especificar
+    headers: {
+        // Adiciona o cabeçalho Authorization com o token Bearer
+        'Authorization': `Bearer ${token}` 
+    }
+};
+
+const res = await fetch(url, options);
     const data = await res.json();
 
     if (data.logged) {

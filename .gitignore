@@ -73,3 +73,5 @@ test*
 migrations
 config
 sessions
+AAA.HTML
+test.html

@@ -47,9 +47,9 @@ export function startWS() {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const token = url.searchParams.get('token');
     try {
-      const decoded = jwt.verify(token, SECRET);
-      ws.userId = decoded.id;
-      global.clients.push(ws);
+        const decoded = jwt.verify(token, SECRET);
+        ws.userId = decoded.id;
+        global.clients.push(ws);
 
       ws.send(
         JSON.stringify({ type: 'info', message: 'Conectado com sucesso' })
@@ -78,21 +78,28 @@ export function startWS() {
           const client = getClient(userId);
           const chats = await client.getChats();
 
-          const clientPromises = chats.slice(0, 9).map(async (chat) => {
+          const chatsToProcess = chats.slice(0, 11);
+          const clientsData = [];
+
+          for (const chat of chatsToProcess) {
+            const suffix = chat.name?.split('@')[1];
+
+            if (suffix && suffix.startsWith('g')) {
+              continue; // Ignora o resto do código para este chat e vai para o próximo item do loop
+            }
+
             const contact = await chat.getContact();
+            const contactPicture = await contact?.getProfilePicUrl();
 
-            const contactPicture = await contact.getProfilePicUrl();
-
-            return {
+            const clientInfo = {
               id: chat.id._serialized,
-              name: contact.name || chat.name || chat.id.user,
-              number: contact.number || chat.id.user || '',
+              name: contact?.name || chat.name || chat.id.user, // Adicionado ?. também
+              number: contact?.number || chat.id.user || '', // Adicionado ?. também
               photo: contactPicture || null,
             };
-          });
 
-          const clientsData = await Promise.all(clientPromises);
-
+            clientsData.push(clientInfo);
+          }
           ws.send(JSON.stringify({ type: 'clients', chats: clientsData }));
         }
 
@@ -223,6 +230,7 @@ export function startWS() {
     }
   });
 }
+
 await connectDB();
 setupAssociations();
 await sequelize.sync({ alter: false, force: false });
