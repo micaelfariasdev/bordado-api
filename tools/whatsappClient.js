@@ -1,7 +1,7 @@
 import pkg from 'whatsapp-web.js';
 import qrcode from 'qrcode';
 import path from 'path';
-import { setStage } from './TrilhaBot.js';
+import { getStage, setStage } from './TrilhaBot.js';
 const { Client, LocalAuth } = pkg;
 
 let activeClients = {};
@@ -37,8 +37,16 @@ export async function startClient(userId) {
 
     if (!isBotMessage) {
       const userId = msg.to;
-      await setStage(userId, 'exit');
+      let state = (await getStage(userId)) || {
+          userId,
+          currentStage: 1,
+          data: {},
+        };
+
+       state.currentStage ='exit' 
+      await setStage(userId, state);
     }
+    console.log(state, msg)
   });
 
 

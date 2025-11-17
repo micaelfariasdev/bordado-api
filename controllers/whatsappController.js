@@ -27,7 +27,6 @@ export class WhatsappController {
 
     const numberId = await client.getNumberId(to);
     if (!numberId) throw new Error('Número inválido ou não encontrado');
-    client.sendSeen(numberId._serialized)
     const chat = await client.getChatById(numberId._serialized);
 
     // simula "digitando..."
