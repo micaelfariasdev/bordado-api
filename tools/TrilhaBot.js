@@ -281,7 +281,7 @@ export async function AutoBot(msg) {
           userId,
           'Ótimo, fique no aguardo que vamos lhe responder assim que possível'
         );
-        state.currentStage = 'exit';
+        state.currentStage = 10;
 
       } else if (userMessage
         .normalize('NFD')
