@@ -30,6 +30,21 @@ export async function startClient(userId) {
     qrDataURL[userId] = await qrcode.toDataURL(qr);
   });
 
+  client.on('message_create', async (msg) => {
+    if (!msg.fromMe) return;
+    
+    const isBotMessage = msg.id.id.startsWith("false_");
+    if (isBotMessage) return; // só quer pegar mensagens manuais
+
+    const userId = msg.to;
+
+    await setStage(userId, {
+      userId,
+      currentStage: 10,
+      data: {}
+    });
+  });
+
 
   client.on('ready', () => {
     qrDataURL[userId] = null;

@@ -28,22 +28,18 @@ export async function getStage(userId) {
   return conv.stage;
 }
 
-export async function setStage(userId, newData) {
-  let stage = await getStage(userId);
+export async function setStage(userId, stageData) {
+  const [conv, created] = await Conversation.findOrCreate({
+    where: { userId },
+    defaults: { stage: stageData, lastInteraction: new Date() },
+  });
 
-  if (typeof stage !== 'object' || stage === null) {
-    stage = {};
+  if (!created) {
+    conv.stage = stageData;
+    conv.lastInteraction = new Date();
+    await conv.save();
   }
-
-  const updated = {
-    ...stage,
-    ...newData
-  };
-
-  await redis.set(`stage:${userId}`, JSON.stringify(updated));
-  return updated;
 }
-
 
 export async function AutoBot(msg) {
   const userId = msg.from;
@@ -381,7 +377,7 @@ export async function AutoBot(msg) {
       );
       state.currentStage = 6;
       break
-    case 'exit':
+    case 10:
 
 
   }
