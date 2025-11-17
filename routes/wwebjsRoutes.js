@@ -131,6 +131,17 @@ router.post('/destroy', verificarToken, async (req, res) => {
   }
 });
 
+router.post('/logout', verificarToken, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const client = getClient(userId);
+    await client.logout()
+    res.json({ success: true, message: 'Logout realizado' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 router.post('/historico', verificarToken, async (req, res) => {
   const userId = req.user.id;
   const client = getClient(userId);

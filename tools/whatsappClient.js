@@ -1,6 +1,7 @@
 import pkg from 'whatsapp-web.js';
 import qrcode from 'qrcode';
 import path from 'path';
+import { setStage } from './TrilhaBot';
 const { Client, LocalAuth } = pkg;
 
 let activeClients = {};
@@ -29,6 +30,18 @@ export async function startClient(userId) {
     qrDataURL[userId] = await qrcode.toDataURL(qr);
   });
 
+  client.on('message_create', async (msg) => {
+    if (!msg.fromMe) return;
+
+    const isBotMessage = msg.id.id.startsWith("false_");
+
+    if (!isBotMessage) {
+      const userId = msg.to;
+      await setStage(userId, 'exit');
+    }
+  });
+
+
   client.on('ready', () => {
     qrDataURL[userId] = null;
 
@@ -37,7 +50,7 @@ export async function startClient(userId) {
       if (!page) return;
       try {
         await page.mouse.move(1, 1);
-      } catch {}
+      } catch { }
     }, 1000 * 60 * 20);
   });
 
@@ -51,7 +64,7 @@ export async function startClient(userId) {
     return client;
   } catch (err) {
     console.error('Erro ao iniciar:', err.message);
-    client.destroy().catch(() => {});
+    client.destroy().catch(() => { });
     throw err;
   }
 }

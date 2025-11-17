@@ -281,7 +281,7 @@ export async function AutoBot(msg) {
           userId,
           'Ótimo, fique no aguardo que vamos lhe responder assim que possível'
         );
-        state.currentStage = 10;
+        state.currentStage = 'exit';
 
       } else if (userMessage
         .normalize('NFD')
@@ -377,7 +377,7 @@ export async function AutoBot(msg) {
       );
       state.currentStage = 6;
       break
-    case 10:
+    case 'exit':
 
 
   }
