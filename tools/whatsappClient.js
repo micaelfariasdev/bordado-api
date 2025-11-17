@@ -34,19 +34,15 @@ export async function startClient(userId) {
     if (!msg.fromMe) return;
 
     const isBotMessage = msg.id.id.startsWith("false_");
+    if (isBotMessage) return; // só quer pegar mensagens manuais
 
-    if (!isBotMessage) {
-      const userId = msg.to;
-      let state = (await getStage(userId)) || {
-          userId,
-          currentStage: 1,
-          data: {},
-        };
+    const userId = msg.to;
 
-       state.currentStage ='exit' 
-      await setStage(userId, state);
-    }
-    console.log(state, msg)
+    await setStage(userId, {
+      userId,
+      currentStage: 'exit',
+      data: {}
+    });
   });
 
 
