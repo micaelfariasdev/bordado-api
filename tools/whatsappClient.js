@@ -45,13 +45,13 @@ export async function startClient(userId) {
   client.on('ready', () => {
     qrDataURL[userId] = null;
 
+
     setInterval(async () => {
-      const page = client.pupPage;
-      if (!page) return;
       try {
-        await page.mouse.move(1, 1);
+        await client.sendPresenceAvailable();
       } catch { }
-    }, 1000 * 60 * 20);
+    }, 1000 * 60 * 5);
+
   });
 
   client.on('auth_failure', (msg) => console.log('Auth Failure:', msg));
