@@ -28,13 +28,14 @@ export class WhatsappController {
     const numberId = await client.getNumberId(to);
     if (!numberId) throw new Error('Número inválido ou não encontrado');
 
-    const chat = await client.getChatById(numberId._serialized);
+    // const chat = await client.getChatById(numberId._serialized);
 
-    // simula "digitando..."
-    await chat.sendStateTyping();
-    await chat.clearState();
+    // // simula "digitando..."
+    // await chat.sendStateTyping();
+    // await chat.clearState();
+    await client.sendStateTyping(numberId._serialized)
 
-    const sent = await client.sendMessage(chat.id._serialized, message);
+    const sent = await client.sendMessage(numberId._serialized, message);
     return !!sent;
   }
 
