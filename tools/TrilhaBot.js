@@ -28,7 +28,7 @@ export async function getStage(userId) {
   return conv.stage;
 }
 
-async function setStage(userId, newData) {
+export async function setStage(userId, newData) {
   let stage = await getStage(userId);
 
   if (typeof stage !== 'object' || stage === null) {
