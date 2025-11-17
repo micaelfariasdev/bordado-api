@@ -1,7 +1,7 @@
 import pkg from 'whatsapp-web.js';
 import qrcode from 'qrcode';
 import path from 'path';
-import { setStage } from './TrilhaBot';
+import { setStage } from './TrilhaBot.js';
 const { Client, LocalAuth } = pkg;
 
 let activeClients = {};
