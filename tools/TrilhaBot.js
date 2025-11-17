@@ -48,7 +48,7 @@ export async function AutoBot(msg) {
     currentStage: 1,
     data: {},
   };
-
+  console.log(state)
   const userMessage = msg.body.toLowerCase().trim();
   const numberClient = userId.split('@')[0].slice(-8);
   const numberClientDDD = userId.split('@')[0].replace('55', '');
