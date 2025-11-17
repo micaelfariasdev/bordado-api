@@ -27,13 +27,12 @@ export class WhatsappController {
 
     const numberId = await client.getNumberId(to);
     if (!numberId) throw new Error('Número inválido ou não encontrado');
+    client.sendSeen(numberId._serialized)
+    const chat = await client.getChatById(numberId._serialized);
 
-    // const chat = await client.getChatById(numberId._serialized);
-
-    // // simula "digitando..."
-    // await chat.sendStateTyping();
-    // await chat.clearState();
-    await client.sendStateTyping(numberId._serialized)
+    // simula "digitando..."
+    await chat.sendStateTyping();
+    await chat.clearState();
 
     const sent = await client.sendMessage(numberId._serialized, message);
     return !!sent;
@@ -46,34 +45,34 @@ export class WhatsappController {
   }
 
   setupMessageListener() {
-  const client = getClient(this.userId);
-  if (!client) {
-    setTimeout(() => this.setupMessageListener(), 2000);
-    return;
-  }
+    const client = getClient(this.userId);
+    if (!client) {
+      setTimeout(() => this.setupMessageListener(), 2000);
+      return;
+    }
 
-  client.once('ready', () => {
-    const startTime = Math.floor(Date.now() / 1000);
-    client.on('message', async (msg) => {
-      if (msg.timestamp < startTime) return;
-      AutoBot(msg);
+    client.once('ready', () => {
+      const startTime = Math.floor(Date.now() / 1000);
+      client.on('message', async (msg) => {
+        if (msg.timestamp < startTime) return;
+        AutoBot(msg);
 
-      let data = {
-        type: 'message',
-        from: msg.from,
-        body: msg.body || '',
-        me: msg.fromMe,
-        timestamp: msg.timestamp,
-      };
+        let data = {
+          type: 'message',
+          from: msg.from,
+          body: msg.body || '',
+          me: msg.fromMe,
+          timestamp: msg.timestamp,
+        };
 
-      if (msg.hasMedia) {
-        const media = await msg.downloadMedia();
-        data = { ...data, mimetype: media.mimetype, data: media.data, hasMedia: true };
-      }
+        if (msg.hasMedia) {
+          const media = await msg.downloadMedia();
+          data = { ...data, mimetype: media.mimetype, data: media.data, hasMedia: true };
+        }
 
-      this.sendToAll(data);
+        this.sendToAll(data);
+      });
     });
-  });
-}
+  }
 
 }
